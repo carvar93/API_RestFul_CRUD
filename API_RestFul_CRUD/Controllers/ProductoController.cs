@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using API_RestFul_CRUD.Context;
 using API_RestFul_CRUD.Entities;
-
+using Microsoft.EntityFrameworkCore;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace API_RestFul_CRUD.Controllers
@@ -41,20 +41,51 @@ namespace API_RestFul_CRUD.Controllers
 
         // POST api/<ProductoController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public ActionResult Post([FromBody] Producto producto)
         {
+            try
+            {
+                _context.Producto.Add(producto);
+                _context.SaveChanges();
+                return Ok();
+            }
+            catch (ArgumentException e)
+            {
+
+                return BadRequest(e.Message);
+            }
+           
+        
         }
 
         // PUT api/<ProductoController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public ActionResult Put(string id, [FromBody] Producto producto)
         {
+            if (producto.pro_codigo == id)
+            {
+                _context.Entry(producto).State = EntityState.Modified;
+                _context.SaveChanges();
+                return Ok();
+            }
+            else
+                return BadRequest();
         }
 
         // DELETE api/<ProductoController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public ActionResult Delete(string  id)
         {
+            var producto = _context.Producto.FirstOrDefault(p => p.pro_codigo == id);
+            if (producto != null)
+            {
+                _context.Producto.Remove(producto);
+                _context.SaveChanges();
+                return Ok();
+            }
+            else
+                return BadRequest();
+
         }
     }
 }
